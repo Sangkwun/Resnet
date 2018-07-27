@@ -1,5 +1,5 @@
 from keras.models import Model
-from keras.layers import Input, Dense, Activation, Conv2D, MaxPooling2D, BatchNormalization, add
+from keras.layers import Input, Dense, Activation, Conv2D, MaxPooling2D, AveragePooling2D, BatchNormalization, add, Flatten
 
 def conv_block(input_layer,
                    kernel_size,
@@ -54,7 +54,7 @@ def conv_block(input_layer,
 
         return x
 
-def resnet(input_shape=None, shortcut=True):
+def resnet(input_shape=None, shortcut=True, classes=10):
 
     if input_shape is None:
         _shape = (224, 224, 3)
@@ -75,9 +75,12 @@ def resnet(input_shape=None, shortcut=True):
     x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[256, 256, 1024], block_n=6, name="stage4", short_con=shortcut)
     x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[512, 512, 2048], block_n=3, name="stage5", short_con=shortcut)
 
-    model = Model(inputs=inputs, outputs=x)
-    model.summary()
+    x = AveragePooling2D((1, 1), name='avg_pool')(x)
+    x = Flatten()(x)
+    x = Dense(classes, activation='softmax', name='fc1000')(x)
 
+    model = Model(inputs=inputs, outputs=x)
+    return model
 
 if __name__ == "__main__":
     resnet(shortcut=False)
