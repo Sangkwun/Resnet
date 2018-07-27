@@ -6,6 +6,7 @@ def conv_block(input_layer,
                    filters,
                    strides=(2,2),
                    first_strides=None,
+                   short_con=True,
                    first_projection=True,
                    block_n=3,
                    name=None
@@ -37,22 +38,23 @@ def conv_block(input_layer,
             x = Activation('relu')(x)
             
             # shortcut part
-            if first_projection and i == 1:
-                # projection shortcut for extension
-                shortcut = Conv2D(filter_3, kernel_size=(1,1), strides=first_strides, name="{}_{}_short".format(name, i))(input_layer)
-                shortcut = BatchNormalization(axis=bn_axis, name="{}_{}_bn4".format(name, i))(shortcut)
-            else:
-                # identity short cut
-                shortcut = input_layer
+            if short_con:
+                if first_projection and i == 1:
+                    # projection shortcut for extension
+                    shortcut = Conv2D(filter_3, kernel_size=(1,1), strides=first_strides, name="{}_{}_short".format(name, i))(input_layer)
+                    shortcut = BatchNormalization(axis=bn_axis, name="{}_{}_bn4".format(name, i))(shortcut)
+                else:
+                    # identity short cut
+                    shortcut = input_layer
 
-            x = add([x, shortcut], name="{}_{}_add".format(name, i))
+                x = add([x, shortcut], name="{}_{}_add".format(name, i))
             x = Activation('relu')(x)
 
             input_layer = x
 
         return x
 
-def resnet(input_shape=None):
+def resnet(input_shape=None, shortcut=True):
 
     if input_shape is None:
         _shape = (224, 224, 3)
@@ -68,14 +70,14 @@ def resnet(input_shape=None):
     x = Activation('relu')(x)
     x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding='same', name="stage2_0_maxpooling")(x)
 
-    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), first_strides=(1, 1), filters=[64, 64, 256], name="stage2")
-    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[128, 128, 512], block_n=4, name="stage3")
-    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[256, 256, 1024], block_n=6, name="stage4")
-    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[512, 512, 2048], block_n=3, name="stage5")
+    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), first_strides=(1, 1), filters=[64, 64, 256], name="stage2", short_con=shortcut)
+    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[128, 128, 512], block_n=4, name="stage3", short_con=shortcut)
+    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[256, 256, 1024], block_n=6, name="stage4", short_con=shortcut)
+    x = conv_block(input_layer=x, kernel_size=(3, 3), strides=(2, 2), filters=[512, 512, 2048], block_n=3, name="stage5", short_con=shortcut)
 
     model = Model(inputs=inputs, outputs=x)
     model.summary()
 
 
 if __name__ == "__main__":
-    resnet()
+    resnet(shortcut=False)
