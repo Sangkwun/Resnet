@@ -24,9 +24,12 @@ Below two images are accuracy of resnet-50 on cifar10.
 As you can see non residual model is not well trained.
 But Residual network is trained well.
 
-![alt text](https://github.com/Sangkwun/Alexnet/blob/master/accuracy.png)
+- Orange: With short connection
+- Blue: Without short connection
 
-![alt text](https://github.com/Sangkwun/Alexnet/blob/master/cost.png)
+![alt text](https://github.com/Sangkwun/Resnet/blob/master/training.png)
+
+![alt text](https://github.com/Sangkwun/Resnet/blob/master/validating.png)
 
 ## Conclusion
 
