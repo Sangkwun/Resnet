@@ -1,16 +1,17 @@
 from keras.models import Model
 from keras.layers import Input, Dense, Activation, Conv2D, MaxPooling2D, AveragePooling2D, BatchNormalization, add, Flatten
 
+
 def conv_block(input_layer,
-                   kernel_size,
-                   filters,
-                   strides=(2,2),
-                   first_strides=None,
-                   short_con=True,
-                   first_projection=True,
-                   block_n=3,
-                   name=None
-                   ):
+                 kernel_size,
+                 filters,
+                 strides=(2,2),
+                 first_strides=None,
+                 short_con=True,
+                 first_projection=True,
+                 block_n=3,
+                 name=None
+                 ):
 
         filter_1, filter_2, filter_3 = filters
         bn_axis = 3
@@ -48,11 +49,12 @@ def conv_block(input_layer,
                     shortcut = input_layer
 
                 x = add([x, shortcut], name="{}_{}_add".format(name, i))
-            x = Activation('relu')(x)
+                x = Activation('relu')(x)
 
             input_layer = x
 
         return x
+
 
 def resnet(input_shape=None, shortcut=True, classes=10):
 
@@ -82,5 +84,7 @@ def resnet(input_shape=None, shortcut=True, classes=10):
     model = Model(inputs=inputs, outputs=x)
     return model
 
+
 if __name__ == "__main__":
-    resnet(shortcut=False)
+    model = resnet(shortcut=False)
+    print(len(model.layers))

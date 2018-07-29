@@ -1,2 +1,4 @@
 resources
 graph
+weights
+weights/weights.best.hdf5
